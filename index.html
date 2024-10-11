@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot AI - Borys</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chatbox {
+            width: 300px;
+            height: 400px;
+            border: 1px solid white;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #userInput {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid white;
+        }
+        button {
+            padding: 10px;
+            background-color: white;
+            color: black;
+            border: none;
+            cursor: pointer;
+        }
+        #knownWords, #commands {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chatbot - Borys</h1>
+    <div id="chatbox"></div>
+    <input type="text" id="userInput" placeholder="Napisz coś...">
+    <button onclick="sendMessage()">Wyślij</button>
+    
+    <div id="knownWords"></div>
+    <div id="commands"></div>
+
+    <script>
+        let learnedWords = [];
+        const predefinedResponses = [
+            "Cześć! Jak mogę Ci pomóc?",
+            "Interesujące pytanie!",
+            "Czy mógłbyś powiedzieć więcej?",
+            "Dziękuję za podzielenie się tym!",
+            "Nie rozumiem, spróbuj inaczej.",
+            "Jestem tu, aby pomóc!",
+            "Mam matkę.",
+            "Mam brata.",
+            "Lubię piłkę nożną.",
+            "Znam wiele języków.",
+            "Kocham czytać książki.",
+            "Uwielbiam podróżować.",
+            "Znam kilka przepisów kulinarnych.",
+            "Czasem lubię gotować.",
+            "Jestem zainteresowany sztuką.",
+            "Często chodzę na spacery."
+        ];
+
+        // Dodanie 500 słów i zdań do bazy
+        const additionalWords = [
+            "dom", "auto", "kot", "pies", "szkoła", "przyjaciel", "muzyka", "film", 
+            "jedzenie", "woda", "słońce", "książka", "internet", "rower", "komputer", 
+            "sport", "programowanie", "nauka", "matematyka", "historia", "geografia",
+            // Dodaj więcej słów i zdań według potrzeb
+        ].concat(Array(485).fill("Przykładowe słowo")); // Uzupełnienie do 500
+
+        function generateSentence() {
+            const subjects = ["Ja", "Ty", "On", "Ona"];
+            const verbs = ["lubię", "chcę", "widzę", "czuję"];
+            const objects = ["pizzę", "film", "książkę", "muzykę"];
+
+            const subject = subjects[Math.floor(Math.random() * subjects.length)];
+            const verb = verbs[Math.floor(Math.random() * verbs.length)];
+            const object = objects[Math.floor(Math.random() * objects.length)];
+
+            return `${subject} ${verb} ${object}.`;
+        }
+
+        function learnNewWord(word) {
+            if (!learnedWords.includes(word)) {
+                learnedWords.push(word);
+            }
+        }
+
+        function modifyResponse(input) {
+            const words = input.split(" ");
+            let modifiedSentence = words.map(word => {
+                if (word === "matka") return "matkę"; // Przykład modyfikacji
+                return word;
+            }).join(" ");
+            return modifiedSentence.charAt(0).toUpperCase() + modifiedSentence.slice(1);
+        }
+
+        function getBotResponse(input) {
+            const lowerInput = input.toLowerCase();
+
+            if (lowerInput.includes("ja jestem")) {
+                return `Użytkownik: ${learnedWords.join(", ")}`;
+            }
+
+            if (lowerInput.includes("co lubisz") || lowerInput.includes("co chciałbyś")) {
+                return generateSentence();
+            }
+
+            // Modyfikacja zdań
+            if (lowerInput.includes("matka")) {
+                return modifyResponse(input);
+            }
+
+            learnNewWord(input);
+            const randomIndex = Math.floor(Math.random() * predefinedResponses.length);
+            return predefinedResponses[randomIndex] || "Przepraszam, nie rozumiem.";
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById("userInput").value;
+            if (userInput.trim() === "") return;
+
+            const chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<p><strong>Ty:</strong> ${userInput}</p>`;
+            const botResponse = getBotResponse(userInput);
+            chatbox.innerHTML += `<p><strong>Borys:</strong> ${botResponse}</p>`;
+            document.getElementById("userInput").value = "";
+            chatbox.scrollTop = chatbox.scrollHeight; // Przewijanie do dołu
+            
+            // Wyświetlanie znanych słów
+            document.getElementById("knownWords").innerHTML = `<strong>Znane słowa:</strong> ${learnedWords.join(", ")}`;
+            
+            // Wyświetlanie nowych komend
+            document.getElementById("commands").innerHTML = `<strong>Nowe komendy:</strong> Co lubisz, Co chciałbyś, Ja jestem...`;
+        }
+    </script>
+</body>
+</html>
